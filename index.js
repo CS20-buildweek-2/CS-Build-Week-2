@@ -2,20 +2,28 @@ require("dotenv").config();
 const axios = require("axios");
 const token = process.env.TOKEN;
 
-axios
-    .create({
-        headers: {
-            // Authorization: "ADD YOUR TOKEN HERE!",
-            "Content-Type": "application/json"
-        }
-    })
-    // You Will need to use the initialize endpoint before you can start moving around
-    .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/move/", {
-        direction: "n"
-    })
-    .then(res => {
-        console.log(res.data);
-    })
-    .catch(err => {
-        console.log(err);
-    });
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+async function cooldownreq(endpoint, method, data) {
+    try {
+        let res = await axios({
+            baseURL: 'https://lambda-treasure-hunt.herokuapp.com/api/',
+            headers: { Authorization: `Token ${process.env.TOKEN}` },
+            method: `${method}`,
+            url:  `${endpoint}`,
+            data: `${data}`
+        });
+        await sleep(res.cooldown * 1000)
+        console.log(res)
+      } catch (err) {
+
+        console.error(err)
+      }
+}
+
+function main(){cooldownreq("adv/init/","get")}
+
+main()
