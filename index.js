@@ -9,6 +9,7 @@ axios
             "Content-Type": "application/json"
         }
     })
+    // You Will need to use the initialize endpoint before you can start moving around
     .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/move/", {
         direction: "n"
     })
