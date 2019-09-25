@@ -15,7 +15,7 @@ const movement = direction => {
             direction: direction
         })
         .then(res => {
-            console.log(res.data);
+            // console.log(res.data);
             return res.data;
         })
         .catch(err => {

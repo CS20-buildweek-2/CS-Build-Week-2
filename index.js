@@ -1,5 +1,6 @@
 require("dotenv").config();
 const Actions = require("./actions.js");
+const fs = require("fs");
 
 let traversalPath = {
     0: {
@@ -14,13 +15,17 @@ let traversalPath = {
         exits: { n: "?", s: "?", e: "?", w: "?" },
         cooldown: 15,
         errors: [],
-        messages: ["You have walked south."]
+        messages: []
     }
 };
+let prevRoom = 0;
+let currentRoom = traversalPath[0];
+let prevDir = null;
+let trail = [];
 
 function getExits() {
     let exitsObj = {};
-    currentRoom.exits.forEach(direction => {
+    Object.keys(currentRoom.exits).forEach(direction => {
         exitsObj[direction] = "?";
     });
     return exitsObj;
@@ -44,7 +49,7 @@ function roomInit() {
 
 function containsQuestion() {
     currentRoom.exits.forEach(direction => {
-        if (traversalPath[currentRoom.room_id][direction] == "?") {
+        if (traversalPath[currentRoom.room_id][exits][direction] == "?") {
             return true;
         } else {
             return false;
@@ -67,12 +72,13 @@ function oppositeDirection(direction) {
 function moveLog(travelDir) {
     prevRoom = currentRoom.room_id;
     prevDir = travelDir;
-    currentRoom = Actions.movement(travelDir);
+    Actions.movement(travelDir);
     trail.push(oppositeDirection(travelDir));
     if (!(currentRoom.room_id in traversalPath)) {
         roomInit();
     }
-    traversalPath[prevRoom][travelDir] = currentRoom.room_id;
+
+    traversalPath[prevRoom]["exits"][travelDir] = currentRoom.room_id;
 }
 
 function choose(choices) {
@@ -80,9 +86,28 @@ function choose(choices) {
     return choices[index];
 }
 
-let prevRoom = 0;
-let currentRoom = {};
-let prevDir = null;
-let trail = [];
+console.log(async function() {
+    const data = await Actions.movement("n");
+    return data;
+});
 
-while (Object.keys(traversalPath).length < 500) {}
+fs.writeFile(
+    "graphFile.txt",
+    JSON.stringify(traversalPath, null, 2),
+    { flag: "a" },
+    function(err) {
+        if (err) {
+            return console.log(err);
+        }
+    }
+);
+
+// Maybe start by going until you hit 100 rooms or even 10 rooms
+// while (Object.keys(traversalPath).length < 500) {
+//     let travelDir = ""
+//     let unknown = []
+
+//     if(containsQuestion()){
+
+//     }
+// }
