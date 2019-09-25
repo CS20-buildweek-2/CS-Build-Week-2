@@ -72,7 +72,7 @@ function oppositeDirection(direction) {
 function moveLog(travelDir) {
     prevRoom = currentRoom.room_id;
     prevDir = travelDir;
-    Actions.movement(travelDir);
+    currentRoom = Actions.movement(travelDir);
     trail.push(oppositeDirection(travelDir));
     if (!(currentRoom.room_id in traversalPath)) {
         roomInit();
