@@ -64,12 +64,25 @@ function oppositeDirection(direction) {
     }
 }
 
+function moveLog(travelDir) {
+    prevRoom = currentRoom.room_id;
+    prevDir = travelDir;
+    currentRoom = Actions.movement(travelDir);
+    trail.push(oppositeDirection(travelDir));
+    if (!(currentRoom.room_id in traversalPath)) {
+        roomInit();
+    }
+    traversalPath[prevRoom][travelDir] = currentRoom.room_id;
+}
+
 function choose(choices) {
     var index = Math.floor(Math.random() * choices.length);
     return choices[index];
 }
 
 let prevRoom = 0;
-let currentRoom = Actions.movement("n");
+let currentRoom = {};
+let prevDir = null;
+let trail = [];
 
 while (Object.keys(traversalPath).length < 500) {}
