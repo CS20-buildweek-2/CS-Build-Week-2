@@ -42,5 +42,34 @@ function roomInit() {
     };
 }
 
+function containsQuestion() {
+    currentRoom.exits.forEach(direction => {
+        if (traversalPath[currentRoom.room_id][direction] == "?") {
+            return true;
+        } else {
+            return false;
+        }
+    });
+}
+
+function oppositeDirection(direction) {
+    if (direction == "n") {
+        return "s";
+    } else if (direction == "s") {
+        return "n";
+    } else if (direction == "w") {
+        return "e";
+    } else if (direction == "e") {
+        return "w";
+    }
+}
+
+function choose(choices) {
+    var index = Math.floor(Math.random() * choices.length);
+    return choices[index];
+}
+
 let prevRoom = 0;
 let currentRoom = Actions.movement("n");
+
+while (Object.keys(traversalPath).length < 500) {}
