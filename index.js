@@ -32,6 +32,20 @@ function syncStore(data) {
     )
 }
 
+function initstorage() {
+        // check for storage file
+    try {
+        fs.statSync('player.json')
+        console.log("Player file exists, loading...")
+        let store = JSON.parse(fs.readFileSync('player.json', 'utf-8'))
+    }
+    catch (err) {
+        if (err.code === 'ENOENT') {
+            console.log("Creating player file")
+            syncStore({ "titleLocations": {}, "explored": [], "unexplored": [], "moveHistory": [] })
+        }
+    }
+}
 
 // helper for cooldown
 function sleep(ms) {
@@ -169,16 +183,16 @@ function commandlist() {
 // player logic
 async function main() {
     // console.table(await statetables())
+    initstorage()
 
 
     // manipulate json and write to file
-    let store = JSON.parse(fs.readFileSync('player.json', 'utf-8'))
 
     // explore 
     // while (store.explored.length <= 500) {
     // let playerinfo = await status()
-    let roominfo = await init()
-    console.log(roominfo)
+    // let roominfo = await init()
+    // console.log(playerinfo.gold > 1)
     // check for treasure
 
     // for (let item of roominfo.items) {
@@ -188,17 +202,17 @@ async function main() {
 
 
     // Shop Logic
-    if (roominfo.title.includes('Shop')) {
-        await storage.titleLocations.push(`Shop-Room-ID`, this_room_id)
-        sell({ name: 'treasure', confirm: 'yes' })
-    }
-
-
-    if (roominfo.title.includes('Pirate Ry')) {
-        await storage.titleLocations.push(`Pirate-Room-ID`, this_room_id)
-        if (parseInt(player.gold) >= 1000) {
-          await change_name({ name: process.env.NAME, confirm: 'aye'})
-        }
+    // if (roominfo.title.includes('Shop')) {
+    // await storage.titleLocations.push(`Shop-Room-ID`, this_room_id)
+    // sell({ name: 'treasure', confirm: 'yes' })
+    // }
+    // 
+    // 
+    // if (roominfo.title.includes('Pirate Ry')) {
+    // await storage.titleLocations.push(`Pirate-Room-ID`, this_room_id)
+    // if (playerinfo.gold >= 1000) {
+    //   await change_name({ name: process.env.NAME, confirm: 'aye'})
+    // }
     // store.unexplored.push("test")
     // syncStore(store)
     // statetables()
@@ -214,7 +228,7 @@ main()
         "title": "room_id"
     },
     "explored": [],
-    "unexplored": [],     // ?
+    "unexplored": [],
     "moveHistory": []
 }
 */
