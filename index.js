@@ -63,6 +63,7 @@ function wander(lastmove) {
     }
 }
 
+// Print room & game state
 async function initstate() {
     const init = await cooldownreq('adv/init', 'get')
     delete init["description"] // the description ruints the table
@@ -70,16 +71,13 @@ async function initstate() {
     playerstate()
 }
 
+// Print player state
 async function playerstate() {
     var player = (await cooldownreq('adv/status', 'post'))
     console.table(player)
 }
 
 // Player commands
-//
-//
-//
-
 function commandlist(){
     var commands = JSON.parse(fs.readFileSync('commands.json', 'utf-8'))
     console.table(commands)
