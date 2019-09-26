@@ -169,15 +169,36 @@ function commandlist() {
 // player logic
 async function main() {
     // console.table(await statetables())
-    // let playerinfo = await status()
-    // let roominfo = await init()
+
 
     // manipulate json and write to file
     let store = JSON.parse(fs.readFileSync('player.json', 'utf-8'))
-    
-    // explore
-    // console.log(store.explored.length <= 500)
-    
+
+    // explore 
+    // while (store.explored.length <= 500) {
+    // let playerinfo = await status()
+    let roominfo = await init()
+    console.log(roominfo)
+    // check for treasure
+
+    // for (let item of roominfo.items) {
+    // await take(item)
+    // }
+    // }
+
+
+    // Shop Logic
+    if (roominfo.title.includes('Shop')) {
+        await storage.titleLocations.push(`Shop-Room-ID`, this_room_id)
+        sell({ name: 'treasure', confirm: 'yes' })
+    }
+
+
+    if (roominfo.title.includes('Pirate Ry')) {
+        await storage.titleLocations.push(`Pirate-Room-ID`, this_room_id)
+        if (parseInt(player.gold) >= 1000) {
+          await change_name({ name: process.env.NAME, confirm: 'aye'})
+        }
     // store.unexplored.push("test")
     // syncStore(store)
     // statetables()
