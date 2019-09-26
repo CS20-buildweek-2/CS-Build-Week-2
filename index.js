@@ -50,7 +50,7 @@ async function cooldownreq(endpoint, method, data) {
     }
 }
 
-// player functions // [Readme](./README.md)
+// player functions // `https://github.com/CS20-buildweek-2/CS-Build-Week-2/blob/master/README.md')
 async function init() {
     var init = (await cooldownreq('adv/init/', 'get'))
     return init
@@ -143,17 +143,11 @@ function wander(lastmove) {
 }
 
 // Print room & game state
-async function initstate() {
-    const res = await init()
-    delete res["description"] // the description ruins large font tables
-    console.table(res)
-    playerstate()
-}
-
-// Print player state
-async function playerstate() {
-    var player = (await cooldownreq('adv/status', 'post'))
-    console.table(player)
+async function statetables() {
+    const initres = await init()
+    delete initres["description"] // the description ruins large font tables
+    console.table(initres)
+    console.table(await status())
 }
 
 // Player commands
@@ -164,7 +158,7 @@ function commandlist() {
 
 // player logic
 async function main() {
-    console.table(await initstate())
+    console.table(await statetables())
 }
 
 main()
