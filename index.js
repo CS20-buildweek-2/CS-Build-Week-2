@@ -5,15 +5,24 @@ const token = process.env.TOKEN;
 
 // clear file store RAGE QUIT
 function clearStore() {
-    writeFile("config.json", {})
+    fs.writeFile(
+        "player.json",
+        "{}",
+        { flag: "w" },
+        function (err) {
+            if (err) {
+                return console.log(err);
+            }
+        }
+    )
 }
 
-// persist your graph
-function writeFile(filename, data) {
-    fs.writeFile(
-        filename,
+// persist your graph, force sync after every function
+function syncStore(data) {
+    fs.writeFileSync(
+        "player.json",
         JSON.stringify(data),
-        { flag: "a" },
+        { flag: "w+" },
         function (err) {
             if (err) {
                 return console.log(err);
@@ -152,13 +161,34 @@ async function statetables() {
 
 // Player commands
 function commandlist() {
-    var commands = JSON.parse(fs.readFileSync('commands.json', 'utf-8'))
+    var commands = JSON.parse(fs.readFileSync('player.json', 'utf-8'))
     console.table(commands)
 }
 
 // player logic
 async function main() {
-    console.table(await statetables())
+    // console.table(await statetables())
+    // let playerinfo = await status()
+    // let roominfo = await init()
+
+    // manipulate json and write to file
+    // let store = JSON.parse(fs.readFileSync('player.json', 'utf-8'))
+    // store.unexplored.push("test")
+    // syncStore(store)
+    statetables()
 }
 
 main()
+
+// explored, unexplored, past moves, room_id: roomtitle pairs, 
+
+/*
+{
+    "titleLocations": {
+        "title": "room_id"
+    },
+    "explored": [],
+    "unexplored": [],     // unexplored but has been seen
+    "moveHistory": []
+}
+*/
