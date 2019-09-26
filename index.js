@@ -2,6 +2,7 @@ require("dotenv").config();
 const fs = require('fs');
 const axios = require("axios");
 const token = process.env.TOKEN;
+const Graph = require("graph-data-structure");
 
 // clear file store RAGE QUIT
 function clearStore() {
@@ -172,10 +173,14 @@ async function main() {
     // let roominfo = await init()
 
     // manipulate json and write to file
-    // let store = JSON.parse(fs.readFileSync('player.json', 'utf-8'))
+    let store = JSON.parse(fs.readFileSync('player.json', 'utf-8'))
+    
+    // explore
+    // console.log(store.explored.length <= 500)
+    
     // store.unexplored.push("test")
     // syncStore(store)
-    statetables()
+    // statetables()
 }
 
 main()
@@ -188,7 +193,9 @@ main()
         "title": "room_id"
     },
     "explored": [],
-    "unexplored": [],     // unexplored but has been seen
+    "unexplored": [],     // ?
     "moveHistory": []
 }
 */
+// if unexplored, backup, explore
+
