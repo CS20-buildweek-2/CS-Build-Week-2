@@ -3,6 +3,10 @@
         "endpoint": "adv/init/",
         "method": "GET"
     },
+    "status" : {
+        "endpoint": "adv/status/",
+        "method": "POST"
+    },
     "move": {
         "endpoint": "adv/move/",
         "method": "POST",

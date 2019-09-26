@@ -3,6 +3,12 @@ const fs = require('fs');
 const axios = require("axios");
 const token = process.env.TOKEN;
 
+// clear file store RAGE QUIT
+function clearStore() {
+    writeFile("config.json", {})
+}
+
+// persist your graph
 function writeFile(filename, data) {
     fs.writeFile(
         filename,
@@ -16,16 +22,14 @@ function writeFile(filename, data) {
     )
 }
 
-async function moveplayer(direction) {
-    let res = await cooldownreq('adv/move/', 'post', direction)
-    await sleep(res.cooldown * 1000)
-    return console.log(res)
-}
 
+// helper for cooldown
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms))
 }
 
+
+// helper for requests with cooldown built in
 async function cooldownreq(endpoint, method, data) {
     try {
         let res = await axios({
@@ -46,11 +50,86 @@ async function cooldownreq(endpoint, method, data) {
     }
 }
 
-// clear file store
-function clearStore() {
-    writeFile("config.json", {})
+// player functions // [Readme](./README.md)
+async function init() {
+    var init = (await cooldownreq('adv/init/', 'get'))
+    return init
+}
+async function status() {
+    var status = (await cooldownreq('adv/status/', 'post'))
+    return status
+}
+async function move(parameter) {
+    var move = (await cooldownreq('adv/move/', 'post', 'parameter'))
+    return move
+}
+async function movewise(parameter) {
+    var movewise = (await cooldownreq('adv/move/', 'post', 'parameter'))
+    return movewise
+}
+async function take(parameter) {
+    var take = (await cooldownreq('adv/take/', 'post', 'parameter'))
+    return take
+}
+async function drop(parameter) {
+    var drop = (await cooldownreq('adv/drop/', 'post', 'parameter'))
+    return drop
+}
+async function sell(parameter) {
+    var sell = (await cooldownreq('adv/sell/', 'post', 'parameter'))
+    return sell
+}
+async function sell(parameter) {
+    var sell = (await cooldownreq('adv/sell/', 'post', 'parameter'))
+    return sell
+}
+async function wear(parameter) {
+    var wear = (await cooldownreq('adv/wear/', 'post', 'parameter'))
+    return wear
+}
+async function change_name(parameter) {
+    var change_name = (await cooldownreq('adv/change_name/', 'post', 'parameter'))
+    return change_name
+}
+async function pray() {
+    var pray = (await cooldownreq('adv/pray/', 'post'))
+    return pray
+}
+async function fly(parameter) {
+    var fly = (await cooldownreq('adv/fly/', 'post', 'parameter'))
+    return fly
+}
+async function dash(parameter) {
+    var dash = (await cooldownreq('adv/dash/', 'post', 'parameter'))
+    return dash
+}
+async function carry(parameter) {
+    var carry = (await cooldownreq('adv/carry/', 'post', 'parameter'))
+    return carry
+}
+async function receive() {
+    var receive = (await cooldownreq('adv/receive/', 'post'))
+    return receive
+}
+async function ine(parameter) {
+    var ine = (await cooldownreq('bc/mine/', 'post', 'parameter'))
+    return ine
+}
+async function ast_proof(parameter) {
+    var ast_proof = (await cooldownreq('bc/last_proof/', 'get'))
+    return ast_proof
+}
+async function et_balance() {
+    var et_balance = (await cooldownreq('bc/get_balance/', 'get'))
+    return et_balance
+}
+async function transmogrify(parameter) {
+    var transmogrify = (await cooldownreq('adv/transmogrify/', 'post', 'parameter'))
+    return transmogrify
 }
 
+
+// naive node discovery, use in conjunction with graph object
 function wander(lastmove) {
     if (lastmove === 'n') {
         return 's'
@@ -65,9 +144,9 @@ function wander(lastmove) {
 
 // Print room & game state
 async function initstate() {
-    const init = await cooldownreq('adv/init', 'get')
-    delete init["description"] // the description ruints the table
-    console.table(init)
+    const res = await init()
+    delete res["description"] // the description ruins large font tables
+    console.table(res)
     playerstate()
 }
 
@@ -78,14 +157,14 @@ async function playerstate() {
 }
 
 // Player commands
-function commandlist(){
+function commandlist() {
     var commands = JSON.parse(fs.readFileSync('commands.json', 'utf-8'))
     console.table(commands)
 }
 
+// player logic
 async function main() {
-    commandlist()
-
+    console.table(await initstate())
 }
 
 main()
