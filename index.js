@@ -7,7 +7,7 @@ function writeFile(filename, data) {
     fs.writeFile(
         filename,
         JSON.stringify(data),
-        { flag: "w" },
+        { flag: "a" },
         function (err) {
             if (err) {
                 return console.log(err);
@@ -51,20 +51,42 @@ function clearStore() {
     writeFile("config.json", {})
 }
 
-async function main() {
-    const init = await cooldownreq('adv/init', 'get')
-    console.log(init)
-    //  let player = await cooldownreq('adv/status', 'post')
-    let current_room = (await cooldownreq('adv/init', 'get')).room_id
-    let cooldownms = (await cooldownreq('adv/init', 'get')).cooldown * 1000
-    moveplayer({"direction":"s"})
-    console.log(init)
-    //    console.log(init)
-    //    let current_room = await cooldownreq('adv/init', 'get')
-    //    test = {"test":"test"}
+function wander(lastmove) {
+    if (lastmove === 'n') {
+        return 's'
+    } else if (lastmove === 'e') {
+        return 'w'
+    } else if (lastmove === 's') {
+        return 'n'
+    } else if (lastmove === 'w') {
+        return 'e'
+    }
+}
 
-    //    writeFile("locations.json", [])
-    // move command
+async function initstate() {
+    const init = await cooldownreq('adv/init', 'get')
+    delete init["description"] // the description ruints the table
+    console.table(init)
+    playerstate()
+}
+
+async function playerstate() {
+    var player = (await cooldownreq('adv/status', 'post'))
+    console.table(player)
+}
+
+// Player commands
+//
+//
+//
+
+function commandlist(){
+    var commands = JSON.parse(fs.readFileSync('commands.json', 'utf-8'))
+    console.table(commands)
+}
+
+async function main() {
+    commandlist()
 
 }
 

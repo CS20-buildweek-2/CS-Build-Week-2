@@ -1,0 +1,87 @@
+{
+    "init": {
+        "endpoint": "adv/init/",
+        "method": "GET"
+    },
+    "move": {
+        "endpoint": "adv/move/",
+        "method": "POST",
+        "parameter": " [\"n\", \"s\", \"e\", \"w\"]"
+    },
+    "movewise": {
+        "endpoint": "adv/move/",
+        "method": "POST",
+        "parameter": "{\"direction\":\"s\", \"next_room_id\": \"0\"}"
+    },
+    "pickup": {
+        "endpoint": "adv/take/",
+        "method": "POST",
+        "parameter": "{\"name\":\"treasure\"}"
+    },
+    "droptreasure": {
+        "endpoint": "adv/drop/",
+        "method": "POST",
+        "parameter": "{\"name\":\"treasure\"}"
+    },
+    "selltreasure": {
+        "endpoint": "adv/sell/",
+        "method": "POST",
+        "parameter": "{\"name\":\"treasure\"}"
+    },
+    "examine": {
+        "endpoint": "adv/sell/",
+        "method": "POST",
+        "parameter": "{\"name\":\"[NAME OF ITEM OR PLAYER]\"}"
+    },
+    "equip": {
+        "endpoint": "adv/wear/",
+        "method": "POST",
+        "parameter": "{\"name\":\"[NAME OF WEARABLE]\"}"
+    },
+    "change_name": {
+        "endpoint": "adv/change_name/",
+        "method": "POST",
+        "parameter": "{\"name\":\"[NEW NAME]\"}"
+    },
+    "pray": {
+        "endpoint": "adv/pray/",
+        "method": "POST"
+    },
+    "flight": {
+        "endpoint": "adv/fly/",
+        "method": "POST",
+        "parameter": "{\"direction\":\"n\"}"
+    },
+    "dash": {
+        "endpoint": "adv/dash/",
+        "method": "POST",
+        "parameter": "{\"direction\":\"n\", \"num_rooms\":\"5\", \"next_room_ids\":\"10,19,20,63,72\"}"
+    },
+    "carry": {
+        "endpoint": "adv/carry/",
+        "method": "POST",
+        "parameter": "{\"name\":\"[ITEM_NAME]\"}"
+    },
+    "recieve": {
+        "endpoint": "adv/receive/",
+        "method": "POST"
+    },
+    "mine": {
+        "endpoint": "bc/mine/",
+        "method": "POST",
+        "parameter": "{\"proof\":new_proof}"
+    },
+    "proof": {
+        "endpoint": "bc/last_proof/",
+        "method": "GET"
+    },
+    "balance": {
+        "endpoint": "bc/get_balance/",
+        "method": "GET"
+    },
+    "transmogrify": {
+        "endpoint": "adv/transmogrify/",
+        "method": "POST",
+        "parameter": "{\"name\":\"[NAME OF ITEM]\"}"
+    }
+}
