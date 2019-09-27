@@ -2,26 +2,45 @@ require("dotenv").config();
 const axios = require("axios");
 const token = process.env.TOKEN;
 
-const movement = direction => {
-    axios
-        .create({
-            headers: {
-                Authorization: token,
-                "Content-Type": "application/json"
-            }
-        })
-        // You Will need to use the initialize endpoint before you can start moving around
-        .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/move/", {
-            direction: direction
-        })
-        .then(res => {
-            // console.log(res.data);
-            return res.data;
-        })
-        .catch(err => {
-            console.log(err);
-        });
-};
+async function movement(direction) {
+    let roomData = {};
+    let res = {};
+    try {
+        res = await axios
+            .create({
+                headers: {
+                    Authorization: token,
+                    "Content-Type": "application/json"
+                }
+            })
+            // You Will need to use the initialize endpoint before you can start moving around
+            .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/move/", {
+                direction: direction
+            });
+    } catch (err) {
+        console.log(err);
+    }
+    // axios
+    //     .create({
+    //         headers: {
+    //             Authorization: token,
+    //             "Content-Type": "application/json"
+    //         }
+    //     })
+    //     // You Will need to use the initialize endpoint before you can start moving around
+    //     .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/move/", {
+    //         direction: direction
+    //     })
+    //     .then(res => {
+    //         console.log(res.data);
+    //         roomData = res.data;
+    //     })
+    //     .catch(err => {
+    //         console.log(err);
+    //     });
+    roomData = res.data;
+    return roomData;
+}
 
 const treasurePickup = () => {
     axios
@@ -32,7 +51,7 @@ const treasurePickup = () => {
             }
         })
         .post("https://lambda-treasure-hunt.herokuapp.com/api/adv/take/", {
-            name: "treasure"
+            name: "tiny treasure"
         })
         .then(res => {
             console.log(res.data);
@@ -149,7 +168,8 @@ const nameChange = newName => {
         .post(
             "https://lambda-treasure-hunt.herokuapp.com/api/adv/change_name/",
             {
-                name: newName
+                name: newName,
+                confirm: "aye"
             }
         )
         .then(res => {

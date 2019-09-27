@@ -4,6 +4,7 @@ const fs = require("fs");
 
 let traversalPath = {
     0: {
+        room_id: 0,
         title: "A brightly lit room",
         description:
             "You are standing in the center of a brightly lit room. You notice a shop to the west and exits to the north, south and east.",
@@ -32,7 +33,9 @@ function getExits() {
 }
 
 function roomInit() {
+    console.log("roomInit() RAN");
     traversalPath[currentRoom.room_id] = {
+        room_id: currentRoom.room_id,
         title: currentRoom.title,
         description: currentRoom.description,
         coordinates: currentRoom.coordinates,
@@ -69,16 +72,29 @@ function oppositeDirection(direction) {
     }
 }
 
-function moveLog(travelDir) {
-    prevRoom = currentRoom.room_id;
-    prevDir = travelDir;
-    currentRoom = Actions.movement(travelDir);
-    trail.push(oppositeDirection(travelDir));
-    if (!(currentRoom.room_id in traversalPath)) {
-        roomInit();
+async function getCurrentRoom(travelDir) {
+    try {
+        currentRoom = await Actions.movement(travelDir);
+    } catch (err) {
+        console.log(err);
     }
+    return currentRoom;
+}
 
-    traversalPath[prevRoom]["exits"][travelDir] = currentRoom.room_id;
+async function moveLog(travelDir) {
+    prevRoom = currentRoom.room_id;
+    console.log(currentRoom);
+    prevDir = travelDir;
+    try {
+        currentRoom = await getCurrentRoom(travelDir);
+        trail.push(oppositeDirection(travelDir));
+        if (!(currentRoom.room_id in traversalPath)) {
+            roomInit();
+        }
+        traversalPath[prevRoom]["exits"][travelDir] = currentRoom.room_id;
+    } catch (err) {
+        console.log(err);
+    }
 }
 
 function choose(choices) {
@@ -86,10 +102,11 @@ function choose(choices) {
     return choices[index];
 }
 
-console.log(async function() {
-    const data = await Actions.movement("n");
-    return data;
-});
+moveLog("s");
+// Actions.treasurePickup();
+// Actions.treasureSell();
+// Actions.treasureSellConfirm();
+// Actions.nameChange("Logan");
 
 fs.writeFile(
     "graphFile.txt",
