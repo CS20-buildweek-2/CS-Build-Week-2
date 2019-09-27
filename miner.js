@@ -1,13 +1,13 @@
 require('dotenv').config()
-const axios = require("axios");
-const token = process.env.TOKEN;
+const axios = require('axios')
 const shajs = require('sha.js')
+const token = process.env.TOKEN;
 
-// helper for cooldown
+
+// Helper functions
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms))
 }
-
 
 // helper for requests with cooldown built in
 async function cooldownreq(endpoint, method, data) {
@@ -30,50 +30,40 @@ async function cooldownreq(endpoint, method, data) {
     }
 }
 
-async function mine(parameter) {
-    var mine = (await cooldownreq('bc/mine/', 'post', 'parameter'))
-    return mine
-}
-async function get_last_proof() {
-    var get_last_proof = (await cooldownreq('bc/last_proof/', 'get'))
-    return get_last_proof
-}
-async function get_balance() {
-    var get_balance = (await cooldownreq('bc/get_balance/', 'get'))
-    return get_balance
-}
-
 function validate_proof(last_proof, proof, difficulty) {
-  let hash = shajs('sha256')
-    .update(`${last_proof}${proof}`)
-    .digest('hex')
-  return hash.substring(0, difficulty) === '0'.repeat(difficulty)
+    let hash = shajs('sha256')
+        .update(`${last_proof}${proof}`)
+        .digest('hex')
+    return hash.substring(0, difficulty) === '0'.repeat(difficulty)
 }
 
 // Miner
 async function main() {
-  while (true) {
-    let last_block = await get_last_proof()
-    let last_proof = parseInt(last_block.proof)
-    let difficulty = last_block.difficulty
-    let proof = last_proof
-    let is_valid = false
+    while (true) {
+        let last_block = await cooldownreq('bc/last_proof', 'get')
+        let last_proof = parseInt(last_block.proof)
+        let difficulty = last_block.difficulty
+        let proof = last_proof
+        let is_valid = false
 
-    console.log(`Check Proof`)
-    while (!is_valid) {
-      proof += 1
-      is_valid = validate_proof(last_proof, proof, difficulty)
+        console.log(`Validating proof`)
+        while (!is_valid) {
+            proof += 1
+            is_valid = validate_proof(last_proof, proof, difficulty)
+        }
+        console.log(`Finished validating. Proof is ${proof}`)
+
+        let mine = await cooldownreq('bc/mine', 'post', {
+            proof
+        })
+
+
+        if (mine.status === 200) {
+            console.log(`Mined Coin successfully!`)
+        }
+
+        break
     }
-    console.log(`Proof is ${proof}`)
-
-    let attempt = await mine({"proof":`${proof}`})
-
-    if (attempt.status === 200) {
-      console.log(`Lambda Coin Mined successfully!`)
-    }
-
-    break
-  }
 }
-// get_balance()
+
 main()
