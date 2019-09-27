@@ -32,12 +32,12 @@ function syncStore(data) {
     )
 }
 
-function initstorage() {
-        // check for storage file
+function initStorage() {
+    // check for storage file
     try {
         fs.statSync('player.json')
         console.log("Player file exists, loading...")
-        let store = JSON.parse(fs.readFileSync('player.json', 'utf-8'))
+        loadStorage()
     }
     catch (err) {
         if (err.code === 'ENOENT') {
@@ -45,6 +45,10 @@ function initstorage() {
             syncStore({ "titleLocations": {}, "explored": [], "unexplored": [], "moveHistory": [] })
         }
     }
+}
+
+function loadStorage() {
+    let store = JSON.parse(fs.readFileSync('player.json', 'utf-8'))
 }
 
 // helper for cooldown
@@ -59,7 +63,7 @@ async function cooldownreq(endpoint, method, data) {
         let res = await axios({
             baseURL: 'https://lambda-treasure-hunt.herokuapp.com/api/',
             headers: {
-                Authorization: `Token ${process.env.TOKEN}`,
+                Authorization: `Token ${token}`,
                 'content-Type': 'application/json'
             },
             method: `${method}`,
@@ -154,7 +158,7 @@ async function transmogrify(parameter) {
 
 
 // naive node discovery, use in conjunction with graph object
-function wander(lastmove) {
+function backtrack(lastmove) {
     if (lastmove === 'n') {
         return 's'
     } else if (lastmove === 'e') {
@@ -167,7 +171,7 @@ function wander(lastmove) {
 }
 
 // Print room & game state
-async function statetables() {
+async function stateTables() {
     const initres = await init()
     delete initres["description"] // the description ruins large font tables
     console.table(initres)
@@ -176,61 +180,113 @@ async function statetables() {
 
 // Player commands
 function commandlist() {
-    var commands = JSON.parse(fs.readFileSync('player.json', 'utf-8'))
+    var commands = JSON.parse(fs.readFileSync('./commands.json', 'utf-8'))
     console.table(commands)
 }
 
 // player logic
 async function main() {
-    // console.table(await statetables())
-    initstorage()
+    await initStorage()
+    // await stateTables() // print game state
+    let explored = await store.explored
+    let unexplored = await store.unexplored
+    // list player commands
+    // commandlist()
+    // let store = JSON.parse(fs.readFileSync('./player.json', 'utf-8'))
+
+    // Explore 
+    while (store.explored.length <= 500) {
+        let playerinfo = await status()
+        let roominfo = await init()
+        // check for treasure
+        if (
+            roominfo.items.length &&
+            playerinfo.encumbrance < playerinfo.strength &&
+            playerinfo.gold <= 1000
+        ) {
+            for (let item of roominfo.items) {
+                await take(item)
+            }
+        } // else console.log('no item in room ¯\_(ツ)_/¯')
 
 
-    // manipulate json and write to file
+        // Shop Logic
+        // if (roominfo.title.includes('Shop')) {
+        // await storage.titleLocations.push(`Shop-Room-ID`, this_room_id)
+        // sell({ name: 'treasure', confirm: 'yes' })
+        // }
+        // 
+        // Name Change Logic
+        // if (roominfo.title.includes('Pirate Ry')) {
+        // await storage.titleLocations.push(`Pirate-Room-ID`, this_room_id)
+        // if (playerinfo.gold >= 1000) {
+        //   await change_name({ name: process.env.NAME, confirm: 'aye'})
+        // }
 
-    // explore 
-    // while (store.explored.length <= 500) {
-    // let playerinfo = await status()
-    // let roominfo = await init()
-    // console.log(playerinfo.gold > 1)
-    // check for treasure
 
-    // for (let item of roominfo.items) {
-    // await take(item)
-    // }
-    // }
+        if (unexplored.length > 0) {
+            let direction = unexplored[Math.floor(Math.random() * unexplored.length)]
 
+            // travel in a random direction
+            let nextroom = await move({ direction: direction })
 
-    // Shop Logic
-    // if (roominfo.title.includes('Shop')) {
-    // await storage.titleLocations.push(`Shop-Room-ID`, this_room_id)
-    // sell({ name: 'treasure', confirm: 'yes' })
-    // }
-    // 
-    // 
-    // if (roominfo.title.includes('Pirate Ry')) {
-    // await storage.titleLocations.push(`Pirate-Room-ID`, this_room_id)
-    // if (playerinfo.gold >= 1000) {
-    //   await change_name({ name: process.env.NAME, confirm: 'aye'})
-    // }
-    // store.unexplored.push("test")
-    // syncStore(store)
-    // statetables()
+            if (traveled[traveled.length - 1] != this_room_id) {
+                traveled.push(this_room_id)
+            }
+
+            visited[this_room_id][direction] = new_room_id
+            if (!(new_room_id in visited)) {
+                visited[new_room_id] = {}
+
+                for (let i = 0; i < nextroom.exits.length; i++) {
+                    visited[new_room_id][nextroom.exits[i]] = '?'
+                }
+            }
+            let backtrack = the_other_side(direction)
+            visited[new_room_id][backtrack] = this_room_id
+            await storage.visited.push(explored)
+
+            if (
+                current_room.items.length &&
+                player.encumbrance < player.strength &&
+                parseInt(player.gold) <= 1000
+            ) {
+                for (let item of current_room.items) {
+                    await take({ name: item })
+                }
+            }
+        } else {
+
+            let toexplore = []
+
+            let backwards_movement = traveled.pop()
+
+            for (x in visited[this_room_id]) {
+                if (visited[this_room_id][x] === backwards_movement) {
+                    await move({ direction: x, next_room_id: JSON.stringify(backwards_movement) })
+
+                    if (
+                        current_room.items.length &&
+                        player.encumbrance < player.strength &&
+                        parseInt(player.gold) <= 1000
+                    ) {
+                        for (let item of current_room.items) {
+                            await take({ name: item })
+                        }
+                    }
+                }
+                // store.unexplored.push("test")
+                // syncStore(store)
+                // statetables()
+            }
+        }
+    }
 }
+// main()
+// stateTables()
+// clearStore(
 
-main()
 
-// explored, unexplored, past moves, room_id: roomtitle pairs, 
-
-/*
-{
-    "titleLocations": {
-        "title": "room_id"
-    },
-    "explored": [],
-    "unexplored": [],
-    "moveHistory": []
-}
-*/
-// if unexplored, backup, explore
-
+// {"key":"Shop-Room-ID","value":1}
+// {"key":"Pirate-Room-ID","value":467}
+// 250 treasure room
